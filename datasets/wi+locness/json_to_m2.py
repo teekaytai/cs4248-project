@@ -13,7 +13,7 @@ def main():
     args = parse_args()
     print("Loading resources...")
     # Load Tokenizer and other resources
-    nlp = spacy.load("en")
+    nlp = spacy.load("en_core_web_sm")
     # Load Errant
     annotator = errant.load("en", nlp)
     # Punctuation normalisation dictionary
@@ -79,7 +79,7 @@ def main():
             # Loop through the sentences for the first coder
             for sent_id, sent in enumerate(coder_dict[0]):
                 # Write the original sentence to the output M2 file
-                out_m2.write("S "+" ".join(sent["orig"])+"\n")
+                out_m2.write("S "+" ".join(sent["orig"])+"|||"+str(sent["pos"])+"\n")
                 # Annotate the original sentence with spacy
                 orig = annotator.parse(" ".join(sent["orig"]))
                 # Loop through the coders
@@ -398,7 +398,8 @@ def get_sents(orig, edits, sent_tokenised):
         orig, cor, edits = prepare_sent_edits_output(orig, edits)
         out_dict = {"orig": orig,
                     "cor": cor,
-                    "edits": edits}
+                    "edits": edits,
+                    "pos": 0}
         sent_list.append(out_dict)
     # Otherwise, we need to split up the paragraph.
     else:
@@ -453,7 +454,8 @@ def get_sents(orig, edits, sent_tokenised):
             # Save orig sent and edits
             out_dict = {"orig": orig_sent,
                         "cor": cor_sent,
-                        "edits": sent_edits}
+                        "edits": sent_edits,
+                        "pos": sent_id}
             sent_list.append(out_dict)
     return sent_list
 
