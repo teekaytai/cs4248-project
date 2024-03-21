@@ -22,6 +22,9 @@ output_paths = [
 
 train_path = 'datasets/wi+locness/preprocessed+para/train.json'
 dev_path = 'datasets/wi+locness/preprocessed+para/dev.json'
+source_column_name = 'original'
+target_column_name = 'corrected'
+paragraph_column_name = 'paragraph'
 
 def read_m2(path):
     sentences = []
@@ -80,9 +83,9 @@ def output_preprocessed_data(path, sentences, corrected_sentences, sentence_para
         if int(sentence_para_positions[idx]) == 0:
             paragraph_idx += 1
         item = {
-            'original': sentence,
-            'corrected': corrected_sentences[idx],
-            'paragraph': sentence_paragrahs[paragraph_idx]
+            source_column_name: sentence,
+            target_column_name: corrected_sentences[idx],
+            paragraph_column_name: sentence_paragrahs[paragraph_idx]
         }
         items.append(item)
     
@@ -114,6 +117,7 @@ def main():
         study_sentence_lengths(sentences)
         sentence_paragrahs = get_sentence_paragraphs(sentences, sentence_para_positions)
         corrected_sentences = make_corrected_sentences(sentences, sentence_edits)
+        study_sentence_lengths(corrected_sentences)
         output_preprocessed_data(output_paths[idx], sentences, corrected_sentences, sentence_para_positions, sentence_paragrahs)
     train_paths = [k for k in output_paths if 'train' in k]
     merge_json(train_paths, train_path)
