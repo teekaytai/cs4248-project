@@ -80,7 +80,6 @@ input_dev = dataset_dev.map(
 # Define training arguments
 EPOCHS = 10
 OUTPUT_DIR = 'outputs/model_sentence'
-BATCH_SIZE = 16
 # Hugging face documentation reccomends 1e-4 or 3e-4 for T5
 LEARNING_RATE = 3e-4
 training_args = TrainingArguments(

@@ -20,8 +20,20 @@ output_paths = [
     'datasets/wi+locness/preprocessed+para/N.dev.json',
 ]
 
+output_para_paths = [
+    'datasets/wi+locness/para/A.dev.json',
+    'datasets/wi+locness/para/A.train.json',
+    'datasets/wi+locness/para/B.dev.json',
+    'datasets/wi+locness/para/B.train.json',
+    'datasets/wi+locness/para/C.dev.json',
+    'datasets/wi+locness/para/C.train.json',
+    'datasets/wi+locness/para/N.dev.json',
+]
+
 train_path = 'datasets/wi+locness/preprocessed+para/train.json'
 dev_path = 'datasets/wi+locness/preprocessed+para/dev.json'
+train_para_path = 'datasets/wi+locness/para/train.json'
+dev_para_path = 'datasets/wi+locness/para/test.json'
 source_column_name = 'original'
 target_column_name = 'corrected'
 paragraph_column_name = 'paragraph'
@@ -92,6 +104,16 @@ def output_preprocessed_data(path, sentences, corrected_sentences, sentence_para
     with open(path, 'w') as f:
         json.dump(items, f, indent=2)
 
+def output_preprocessed_para(path, paras, corrected_paras):
+    items = []
+    for idx, para in enumerate(paras):
+        items.append({
+            source_column_name: para,
+            target_column_name: corrected_paras[idx]
+        })
+    with open(path, 'w') as f:
+        json.dump(items, f, indent=2)
+
 def study_sentence_lengths(sentences):
     max_len = 0
     min_len = 1000
@@ -114,15 +136,29 @@ def merge_json(input_paths, output_path):
 def main():
     for idx, input_path in enumerate(input_paths):
         sentences, sentence_edits, sentence_para_positions = read_m2(input_path)
-        study_sentence_lengths(sentences)
         sentence_paragrahs = get_sentence_paragraphs(sentences, sentence_para_positions)
+        concatenated_sentence_paras = ["<CONCAT>".join(para) for para in sentence_paragrahs]
         corrected_sentences = make_corrected_sentences(sentences, sentence_edits)
-        study_sentence_lengths(corrected_sentences)
+        corrected_sentence_paragraphs = get_sentence_paragraphs(corrected_sentences, sentence_para_positions)
+        concatenated_corrected_sentence_paras = ["<CONCAT>".join(para) for para in corrected_sentence_paragraphs]
         output_preprocessed_data(output_paths[idx], sentences, corrected_sentences, sentence_para_positions, sentence_paragrahs)
+        output_preprocessed_para(output_para_paths[idx], concatenated_sentence_paras, concatenated_corrected_sentence_paras)
+
+        print("LENGTHS:")
+        study_sentence_lengths(sentences)
+        study_sentence_lengths(corrected_sentences)
+        study_sentence_lengths(concatenated_sentence_paras)
+        study_sentence_lengths(concatenated_corrected_sentence_paras)
+        
     train_paths = [k for k in output_paths if 'train' in k]
     merge_json(train_paths, train_path)
     dev_paths = [k for k in output_paths if 'dev' in k]
     merge_json(dev_paths, dev_path)
+    
+    train_paths = [k for k in output_para_paths if 'train' in k]
+    merge_json(train_paths, train_para_path)
+    dev_paths = [k for k in output_para_paths if 'dev' in k]
+    merge_json(dev_paths, dev_para_path)
 
 if __name__ == "__main__":
     main()
