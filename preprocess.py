@@ -36,6 +36,7 @@ train_para_path = 'datasets/wi+locness/para/train.json'
 dev_para_path = 'datasets/wi+locness/para/test.json'
 source_column_name = 'original'
 target_column_name = 'corrected'
+pos_column_name = 'pos'
 paragraph_column_name = 'paragraph'
 
 def read_m2(path):
@@ -88,7 +89,7 @@ def get_sentence_paragraphs(sentences, sentence_para_positions):
     paras.append(para_sentences)
     return paras[1:]
 
-def output_preprocessed_data(path, sentences, corrected_sentences, sentence_para_positions, sentence_paragrahs):
+def output_preprocessed_sent(path, sentences, corrected_sentences, sentence_para_positions, sentence_paragrahs):
     paragraph_idx = -1
     items = []
     for idx, sentence in enumerate(sentences):
@@ -97,7 +98,8 @@ def output_preprocessed_data(path, sentences, corrected_sentences, sentence_para
         item = {
             source_column_name: sentence,
             target_column_name: corrected_sentences[idx],
-            paragraph_column_name: sentence_paragrahs[paragraph_idx]
+            paragraph_column_name: sentence_paragrahs[paragraph_idx],
+            pos_column_name: int(sentence_para_positions[idx])
         }
         items.append(item)
     
@@ -138,12 +140,14 @@ CONCAT_PARA_TOKEN = " <CONCAT> "
 def main():
     for idx, input_path in enumerate(input_paths):
         sentences, sentence_edits, sentence_para_positions = read_m2(input_path)
-        sentence_paragrahs = get_sentence_paragraphs(sentences, sentence_para_positions)
-        concatenated_sentence_paras = [CONCAT_PARA_TOKEN.join(para) for para in sentence_paragrahs]
+        sentence_paras = get_sentence_paragraphs(sentences, sentence_para_positions)
+        concatenated_sentence_paras = [CONCAT_PARA_TOKEN.join(para) for para in sentence_paras]
+
         corrected_sentences = make_corrected_sentences(sentences, sentence_edits)
         corrected_sentence_paragraphs = get_sentence_paragraphs(corrected_sentences, sentence_para_positions)
         concatenated_corrected_sentence_paras = [CONCAT_PARA_TOKEN.join(para) for para in corrected_sentence_paragraphs]
-        output_preprocessed_data(output_paths[idx], sentences, corrected_sentences, sentence_para_positions, concatenated_sentence_paras)
+
+        output_preprocessed_sent(output_paths[idx], sentences, corrected_sentences, sentence_para_positions, sentence_paras)
         output_preprocessed_para(output_para_paths[idx], concatenated_sentence_paras, concatenated_corrected_sentence_paras)
 
         print("LENGTHS:")

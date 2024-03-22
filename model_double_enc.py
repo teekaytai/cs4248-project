@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from datasets import load_dataset
-from preprocess import train_path, dev_path, source_column_name, target_column_name, paragraph_column_name
+from preprocess import train_path, dev_path, source_column_name, target_column_name, paragraph_column_name, pos_column_name, CONCAT_PARA_TOKEN
 from transformers import BertTokenizer, BertModel, T5Tokenizer, T5ForConditionalGeneration, TrainingArguments, Trainer 
 
 class DoubleEncNet(nn.Module):
@@ -68,6 +68,9 @@ MAX_SOURCE_PARA_LENGTH = 512
 
 TASK_PREFIX = 'rectify'
 TOKENIZER_PADDING = 'max_length'
+# WHOLE_PARA, or a positive number k to consider at most k sentences before
+WHOLE_PARA = True
+PRECEEDING_RANGE = 2
 
 def tokenize_source_sentences(sentences):
     return t5_tokenizer(
@@ -92,9 +95,17 @@ def tokenize_target_sentences(sentences):
     tokenized.input_ids = ids
     return tokenized
 
-def tokenize_source_paragraphs(paragraphs):
+def tokenize_source_paras(paras, sent_positions):
+    if WHOLE_PARA:
+        paras = [CONCAT_PARA_TOKEN.join(para) for para in paras]
+    else:
+        updated_paras = []
+        for idx, para in enumerate(paras):
+            sent_pos = sent_positions[idx]
+            updated_paras.append(CONCAT_PARA_TOKEN.join(para[max(sent_pos - PRECEEDING_RANGE, 0) : sent_pos]))
+        paras = updated_paras
     return bert_tokenizer(
-        paragraphs,
+        paras,
         padding = TOKENIZER_PADDING,
         max_length = MAX_SOURCE_PARA_LENGTH,
         truncation = True,
@@ -104,7 +115,7 @@ def tokenize_source_paragraphs(paragraphs):
 def make_fit_input(dataset):
     tokenized_source_sent = tokenize_source_sentences(dataset[source_column_name])
     tokenized_target_sent = tokenize_target_sentences(dataset[target_column_name])
-    tokenized_source_para = tokenize_source_paragraphs(dataset[paragraph_column_name])
+    tokenized_source_para = tokenize_source_paras(dataset[paragraph_column_name], dataset[pos_column_name])
     input = {}
     input['sent_input_ids'] = tokenized_source_sent['input_ids']
     input['sent_attention_mask'] = tokenized_source_sent['attention_mask']
