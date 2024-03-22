@@ -141,7 +141,7 @@ def main():
         corrected_sentences = make_corrected_sentences(sentences, sentence_edits)
         corrected_sentence_paragraphs = get_sentence_paragraphs(corrected_sentences, sentence_para_positions)
         concatenated_corrected_sentence_paras = ["<CONCAT>".join(para) for para in corrected_sentence_paragraphs]
-        output_preprocessed_data(output_paths[idx], sentences, corrected_sentences, sentence_para_positions, sentence_paragrahs)
+        output_preprocessed_data(output_paths[idx], sentences, corrected_sentences, sentence_para_positions, concatenated_sentence_paras)
         output_preprocessed_para(output_para_paths[idx], concatenated_sentence_paras, concatenated_corrected_sentence_paras)
 
         print("LENGTHS:")
