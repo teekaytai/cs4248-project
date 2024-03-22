@@ -1,7 +1,16 @@
-# Baseline model
-# Train a T5 model
-# Input: Error sentences
-# Output: Corrected sentences
+'''Baseline model
+Train a T5 model
+Input: Error sentences
+Output: Corrected sentences
+
+Things to tune (but this isn't very important):
+1. MAX_SOURCE_LENGTH
+2. MAX_TARGET_LENGTH'
+3. Training arguments
+  a. Mainly: Number of epochs, batch size
+  b. Less important: Learning rate
+4. Try other transformer models
+'''
 
 import torch
 from datasets import load_dataset

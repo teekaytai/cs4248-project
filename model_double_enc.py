@@ -1,3 +1,22 @@
+'''Double enc model
+Use one transformer encoder to encode sentences -- T5
+Use another transformer encoder to encode paragraph context
+Combine both encodings
+Use one transformer decoder to decode the encodings -- T5
+
+Things to tune
+1. Transformer encoder used to encode paragraph context: BERT, RoBERTa, XLNet, ALBERT, DistilBERT, T5
+2. Encoding combination method
+   a. MLP to reduce dimenision of paragraph encodings hidden size
+   b. ?? Need to find more ways
+3. [Stretch] Try other transformer decoders
+4. [Stretch] Try other transformer encoders to encode sentences
+5. Number of preceeding sentences to consider in the paragraph context
+6. Training arguments
+  a. Mainly: Number of epochs, batch size
+  b. Less important: Learning rate
+'''
+
 import torch
 import torch.nn as nn
 from datasets import load_dataset
