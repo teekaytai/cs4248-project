@@ -121,7 +121,7 @@ def tokenize_source_paras(paras, sent_positions):
         updated_paras = []
         for idx, para in enumerate(paras):
             sent_pos = sent_positions[idx]
-            updated_paras.append(CONCAT_PARA_TOKEN.join(para[max(sent_pos - PRECEEDING_RANGE, 0) : sent_pos]))
+            updated_paras.append(CONCAT_PARA_TOKEN.join(para[max(sent_pos - PRECEEDING_RANGE, 0) : sent_pos + 1]))
         paras = updated_paras
     return bert_tokenizer(
         paras,
