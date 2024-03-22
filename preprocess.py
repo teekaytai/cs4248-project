@@ -133,14 +133,16 @@ def merge_json(input_paths, output_path):
     with open(output_path, 'w') as output_file:
         json.dump(result, output_file, indent=2)
 
+CONCAT_PARA_TOKEN = " <CONCAT> "
+
 def main():
     for idx, input_path in enumerate(input_paths):
         sentences, sentence_edits, sentence_para_positions = read_m2(input_path)
         sentence_paragrahs = get_sentence_paragraphs(sentences, sentence_para_positions)
-        concatenated_sentence_paras = ["<CONCAT>".join(para) for para in sentence_paragrahs]
+        concatenated_sentence_paras = [CONCAT_PARA_TOKEN.join(para) for para in sentence_paragrahs]
         corrected_sentences = make_corrected_sentences(sentences, sentence_edits)
         corrected_sentence_paragraphs = get_sentence_paragraphs(corrected_sentences, sentence_para_positions)
-        concatenated_corrected_sentence_paras = ["<CONCAT>".join(para) for para in corrected_sentence_paragraphs]
+        concatenated_corrected_sentence_paras = [CONCAT_PARA_TOKEN.join(para) for para in corrected_sentence_paragraphs]
         output_preprocessed_data(output_paths[idx], sentences, corrected_sentences, sentence_para_positions, concatenated_sentence_paras)
         output_preprocessed_para(output_para_paths[idx], concatenated_sentence_paras, concatenated_corrected_sentence_paras)
 
