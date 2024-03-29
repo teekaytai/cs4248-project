@@ -1,0 +1,6 @@
+errant_compare -hyp outputs/model_sentence/checkpoint-8000/generated.m2 -ref datasets/wi+locness/preprocessed+para/dev.m2
+
+=========== Span-Based Correction ============
+TP      FP      FN      Prec    Rec     F0.5
+2469    1960    5117    0.5575  0.3255  0.4879
+==============================================
