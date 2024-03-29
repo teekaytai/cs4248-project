@@ -34,7 +34,7 @@ model.to(device)
 MAX_SOURCE_LENGTH = 512
 MAX_TARGET_LENGTH = 512
 
-TASK_PREFIX = 'rectify'
+TASK_PREFIX = 'rectify: '
 TOKENIZER_PADDING = 'max_length'
 
 def tokenize_source_sentences(sentences):

@@ -85,7 +85,7 @@ MAX_SOURCE_SENT_LENGTH = 240
 MAX_TARGET_SENT_LENGTH = 240
 MAX_SOURCE_PARA_LENGTH = 512
 
-TASK_PREFIX = 'rectify'
+TASK_PREFIX = 'rectify: '
 TOKENIZER_PADDING = 'max_length'
 # WHOLE_PARA, or a positive number k to consider at most k sentences before
 WHOLE_PARA = True

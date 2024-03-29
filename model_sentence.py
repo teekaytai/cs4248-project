@@ -38,7 +38,7 @@ MAX_SOURCE_LENGTH = 240
 MAX_TARGET_LENGTH = 240
 
 # T5 pretraining used this prefix to make corrections to inputs.
-TASK_PREFIX = 'rectify'
+TASK_PREFIX = 'rectify: '
 TOKENIZER_PADDING = 'max_length'
 
 def tokenize_source_sentences(sentences):
@@ -76,12 +76,10 @@ def make_fit_input(dataset):
 input_train = dataset_train.map(
     make_fit_input,
     batched=True,
-    num_proc=8
 )
 input_dev = dataset_dev.map(
     make_fit_input,
     batched=True,
-    num_proc=8
 )
 
 # 4. Train model

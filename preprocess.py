@@ -1,4 +1,6 @@
 import json
+import errant
+import spacy
 
 input_paths = [
     'datasets/wi+locness/m2+para/A.dev.gold.bea19.m2',
@@ -32,6 +34,7 @@ output_para_paths = [
 
 train_path = 'datasets/wi+locness/preprocessed+para/train.json'
 dev_path = 'datasets/wi+locness/preprocessed+para/dev.json'
+dev_m2_path = 'datasets/wi+locness/preprocessed+para/dev.m2'
 train_para_path = 'datasets/wi+locness/para/train.json'
 dev_para_path = 'datasets/wi+locness/para/test.json'
 source_column_name = 'original'
@@ -137,6 +140,26 @@ def merge_json(input_paths, output_path):
 
 CONCAT_PARA_TOKEN = " <CONCAT> "
 
+nlp = spacy.load("en_core_web_sm")
+annotator = errant.load('en', nlp)
+NOOP_EDIT = 'A -1 -1|||noop|||-NONE-|||REQUIRED|||-NONE-|||0'
+
+def generate_dev_m2(dev_json_path, dev_m2_path):
+    items=[]
+
+    with open(dev_json_path, 'r') as input_f:
+        items = json.load(input_f)
+    
+    with open(dev_m2_path, 'w') as f:
+        for item in items:
+            edits = annotator.annotate(annotator.parse(item[source_column_name]), annotator.parse(item[target_column_name]))
+            print('S', item[source_column_name], file=f)
+            if not edits:
+                print(NOOP_EDIT, file=f)
+            for edit in edits:
+                print(edit.to_m2(), file=f)
+            print(file=f)  # Blank divider line
+
 def main():
     for idx, input_path in enumerate(input_paths):
         sentences, sentence_edits, sentence_para_positions = read_m2(input_path)
@@ -160,6 +183,7 @@ def main():
     merge_json(train_paths, train_path)
     dev_paths = [k for k in output_paths if 'dev' in k]
     merge_json(dev_paths, dev_path)
+    generate_dev_m2(dev_path, dev_m2_path)
     
     train_paths = [k for k in output_para_paths if 'train' in k]
     merge_json(train_paths, train_para_path)
