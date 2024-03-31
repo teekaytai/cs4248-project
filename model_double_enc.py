@@ -51,12 +51,41 @@ class DoubleEncNet(nn.Module):
         # Currently this concatenates para hidden states to sentence hidden states
         para_enc = self.dim_adjustor(para_enc)
         enc = torch.cat((sent_enc, para_enc), dim = 1)
-        output = self.dec_model.decoder(labels, encoder_hidden_states=enc).last_hidden_state
+        output = self.dec_model.decoder(format_decoder_input_ids(labels), encoder_hidden_states=enc).last_hidden_state
         output = output * (self.dec_model.model_dim ** -0.5)
         logits = self.dec_model.lm_head(output)
         loss_fn = torch.nn.CrossEntropyLoss(ignore_index = -100)
         loss = loss_fn(logits.view(-1, logits.size(-1)), labels.view(-1)).unsqueeze(dim = 0)
         return loss
+
+    def state_dict(self, *args, **kwargs):
+        state_dict1 = super().state_dict(*args, **kwargs)
+        state_dict1.pop('sent_enc_model.shared.weight', None)
+        state_dict1.pop('sent_enc_model.decoder.embed_tokens.weight', None)
+        state_dict1.pop('sent_enc_model.lm_head.weight', None)
+        state_dict1.pop('dec_model.shared.weight', None)
+        state_dict1.pop('dec_model.decoder.embed_tokens.weight', None)
+        state_dict1.pop('dec_model.lm_head.weight', None)
+        return state_dict1
+
+    def load_state_dict(self, state_dict, *args, **kwargs):
+        state_dict.pop('sent_enc_model.shared.weight', None)
+        state_dict.pop('sent_enc_model.decoder.embed_tokens.weight', None)
+        state_dict.pop('sent_enc_model.lm_head.weight', None)
+        state_dict.pop('dec_model.shared.weight', None)
+        state_dict.pop('dec_model.decoder.embed_tokens.weight', None)
+        state_dict.pop('dec_model.lm_head.weight', None)
+        super().load_state_dict(state_dict, *args, **kwargs)
+        return
+
+def format_decoder_input_ids(input_ids):
+    decoder_start_token_id = 0
+    pad_token_id = 0
+    shifted_input_ids = input_ids.new_zeros(input_ids.shape)
+    shifted_input_ids[..., 1:] = input_ids[..., :-1].clone()
+    shifted_input_ids[..., 0] = decoder_start_token_id
+    shifted_input_ids.masked_fill_(shifted_input_ids == -100, pad_token_id)
+    return shifted_input_ids
 
 # 1. Load dataset
 dataset_train = load_dataset('json', data_files=train_path, split='train')
@@ -88,7 +117,7 @@ MAX_SOURCE_PARA_LENGTH = 512
 TASK_PREFIX = 'rectify: '
 TOKENIZER_PADDING = 'max_length'
 # WHOLE_PARA, or a positive number k to consider at most k sentences before
-WHOLE_PARA = True
+WHOLE_PARA = False
 PRECEEDING_RANGE = 2
 
 def tokenize_source_sentences(sentences):
@@ -146,12 +175,10 @@ def make_fit_input(dataset):
 input_train = dataset_train.map(
     make_fit_input,
     batched=True,
-    num_proc=8
 )
 input_dev = dataset_dev.map(
     make_fit_input,
     batched=True,
-    num_proc=8
 )
 
 # 4. Train model
@@ -162,6 +189,8 @@ OUTPUT_DIR = 'outputs/model_double_enc'
 # Hugging face documentation reccomends 1e-4 or 3e-4 for T5
 LEARNING_RATE = 3e-4
 training_args = TrainingArguments(
+    per_device_train_batch_size=4,
+    per_device_eval_batch_size=4,
     output_dir = OUTPUT_DIR,
     num_train_epochs = EPOCHS,
     evaluation_strategy = 'steps',

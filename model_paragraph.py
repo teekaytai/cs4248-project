@@ -72,12 +72,10 @@ def make_fit_input(dataset):
 input_train = dataset_train.map(
     make_fit_input,
     batched=True,
-    num_proc=8
 )
 input_dev = dataset_dev.map(
     make_fit_input,
     batched=True,
-    num_proc=8
 )
 
 # 4. Train model
