@@ -47,7 +47,7 @@ def tokenize_target_sentences(sentences):
         truncation = True,
         return_tensors="pt",
     ).to(device)
-    # Replace padding token id's of the labels by -100 so it's ignored by the loss
+    # Replace padding token ids of the labels by -100 so it's ignored by the loss
     ids = tokenized.input_ids
     ids[ids == tokenizer.pad_token_id] = -100
     tokenized.input_ids = ids
