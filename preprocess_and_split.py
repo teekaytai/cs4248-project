@@ -74,11 +74,15 @@ def make_corrected_sentence(sentence, sentence_edits):
 def output_preprocessed_data(json_path, m2_path, dataset):
     items = []
     for paragraph, para_edits, _ in dataset:
+        corrected_paragraph = []
+        for i, (sentence, sentence_edits) in enumerate(zip(paragraph, para_edits)):
+            corrected_paragraph.append(make_corrected_sentence(sentence, sentence_edits))
         for i, (sentence, sentence_edits) in enumerate(zip(paragraph, para_edits)):
             item = {
                 'original': sentence,
-                'corrected': make_corrected_sentence(sentence, sentence_edits),
+                'corrected': corrected_paragraph[i],
                 'paragraph': paragraph,
+                'corrected_paragraph': corrected_paragraph,
                 'pos': i,
             }
             items.append(item)
