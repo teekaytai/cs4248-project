@@ -1,0 +1,13 @@
+When using 1,0 to generate
+
+=========== Span-Based Correction ============
+TP      FP      FN      Prec    Rec     F0.5
+2471    2395    4983    0.5078  0.3315  0.459
+==============================================
+
+When using 1,1 to generate
+
+=========== Span-Based Correction ============
+TP      FP      FN      Prec    Rec     F0.5
+2429    2426    5025    0.5003  0.3259  0.4519
+==============================================
