@@ -127,7 +127,9 @@ def generate(model_path, dataset, prec_range, post_range):
         print(generated_chunk)
         generated_parts = generated_chunk.split("cct>")
         range_len = prec_range + post_range + 1
-        if len(generated_parts) == range_len:
+        if len(generated_parts) == 1:
+            generated_sentence = ' '.join(tok.text for tok in spacy_tokenizer(generated_parts[0])).strip()
+        elif len(generated_parts) == range_len:
             generated_sentence = ' '.join(tok.text for tok in spacy_tokenizer(generated_parts[prec_range])).strip()
         elif pos - prec_range < 0:
             generated_sentence = ' '.join(tok.text for tok in spacy_tokenizer(generated_parts[pos])).strip()

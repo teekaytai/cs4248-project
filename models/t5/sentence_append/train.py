@@ -10,7 +10,7 @@ dataset_kwargs = {
         "para_column_name": "paragraph", 
         "corr_para_column_name": "corrected_paragraph",
         "pos_column_name": "pos", 
-        "prec_range": 1, 
+        "prec_range": 2, 
         "post_range": 0,
         }
 
@@ -25,4 +25,4 @@ preprocessed_eval = dataset_eval.map(
     fn_kwargs=dataset_kwargs
 )
 
-train(preprocessed_train, preprocessed_eval, 'outputs/model_sentence_append/1_0')
+train(preprocessed_train, preprocessed_eval, 'outputs/model_sentence_append/2_0')
