@@ -11,3 +11,6 @@ pip install -r requirements.txt
 ## Preprocessing
 - Find preprocessed datasets in `datasets/wi+locness/preprocessed+para`.
 - Or run `preprocess.py` to generate them.
+
+## Navigate Repository
+Given our diverse choice of experiments, both in terms of models and computational resources we used, we have continued our development on individual branches. Each branch contains further information on what to expect from the code in the branch - we invite you to take a look at the same!
